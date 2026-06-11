@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>The Imbalance Trap · Live Methodology Demo</title>
+<style>
+  :root{
+    --ink:#eef2ff; --dim:#9aa6c4; --faint:#5d6884;
+    --acc:#6ea8fe; --acc2:#7c5cff; --acc3:#2ee6c5;
+    --good:#27e0a3; --warn:#ffc24b; --bad:#ff5d6c;
+    --grad:linear-gradient(135deg,#7c5cff,#6ea8fe 55%,#2ee6c5);
+    --card:rgba(255,255,255,.05); --brd:rgba(255,255,255,.09);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",sans-serif;
+    background:#070b16;color:var(--ink);min-height:100dvh;display:flex;align-items:center;justify-content:center;
+    padding:34px 22px;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:-25%;z-index:-2;
+    background:radial-gradient(38% 46% at 20% 16%,rgba(124,92,255,.26),transparent 60%),
+      radial-gradient(42% 52% at 82% 20%,rgba(46,230,197,.16),transparent 60%),
+      radial-gradient(46% 56% at 60% 96%,rgba(110,168,254,.20),transparent 60%),#070b16;
+    animation:drift 24s ease-in-out infinite alternate}
+  @keyframes drift{from{transform:translateY(0)}to{transform:translateY(-2.5%)}}
+
+  .wrap{width:100%;max-width:760px}
+  .head{text-align:center;margin-bottom:24px}
+  .eyebrow{font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--acc3);font-weight:700}
+  .head h1{font-size:38px;font-weight:800;letter-spacing:-.5px;margin:9px 0 8px;line-height:1.05}
+  .head h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .head p{font-size:15px;color:var(--dim);max-width:560px;margin:0 auto;line-height:1.5}
+
+  /* strategy toggle */
+  .seg{display:flex;gap:6px;background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:6px;
+    margin:26px auto 6px;max-width:560px;backdrop-filter:blur(14px)}
+  .seg button{flex:1;border:none;background:transparent;color:var(--dim);font-family:inherit;cursor:pointer;
+    padding:13px 8px;border-radius:11px;font-size:14.5px;font-weight:700;letter-spacing:.2px;transition:.25s;position:relative}
+  .seg button small{display:block;font-size:10.5px;font-weight:500;letter-spacing:.2px;margin-top:3px;opacity:.7;text-transform:none}
+  .seg button.on{color:#fff;background:rgba(255,255,255,.07);box-shadow:0 6px 18px -8px rgba(0,0,0,.6)}
+  .seg button.on.s-none{box-shadow:inset 0 0 0 1px rgba(110,168,254,.5)}
+  .seg button.on.s-smote{box-shadow:inset 0 0 0 1px rgba(255,93,108,.55)}
+  .seg button.on.s-classw{box-shadow:inset 0 0 0 1px rgba(39,224,163,.5)}
+  .hintkey{text-align:center;font-size:11.5px;color:var(--faint);margin-bottom:18px}
+
+  /* insight banner */
+  .banner{border:1px solid var(--brd);border-radius:18px;padding:16px 20px;margin-bottom:18px;
+    background:var(--card);backdrop-filter:blur(14px);transition:.3s;display:flex;gap:14px;align-items:flex-start}
+  .banner .tag{flex:none;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    padding:6px 11px;border-radius:8px;margin-top:2px}
+  .banner .txt{font-size:14.5px;line-height:1.55;color:var(--ink)}
+  .banner .txt b{font-weight:700}
+
+  /* leaderboard */
+  .board{position:relative;border:1px solid var(--brd);border-radius:20px;background:var(--card);
+    backdrop-filter:blur(14px);padding:14px;overflow:hidden}
+  .axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);padding:0 6px 10px;letter-spacing:.3px}
+  .rows{position:relative}
+  .mrow{position:absolute;left:0;right:0;height:62px;display:flex;align-items:center;gap:13px;padding:0 6px;
+    transition:transform .66s cubic-bezier(.34,1.2,.4,1),opacity .4s;will-change:transform}
+  .rank{flex:none;width:24px;text-align:center;font-size:15px;font-weight:800;color:var(--faint);font-variant-numeric:tabular-nums}
+  .crown{position:absolute;left:-2px;top:6px;font-size:15px;transition:opacity .3s;filter:drop-shadow(0 2px 6px rgba(255,194,75,.6))}
+  .mname{flex:none;width:150px}
+  .mname .n{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:7px}
+  .mname .badge{font-size:9px;font-weight:800;letter-spacing:.6px;padding:2px 6px;border-radius:5px;text-transform:uppercase}
+  .b-trad{background:rgba(110,168,254,.18);color:#9cc1ff}
+  .b-ml{background:rgba(124,92,255,.16);color:#b3a0ff}
+  .track{flex:1;height:26px;background:rgba(255,255,255,.05);border-radius:8px;position:relative;overflow:hidden}
+  .fill{position:absolute;left:0;top:0;bottom:0;border-radius:8px;width:0;
+    transition:width .66s cubic-bezier(.34,1.1,.4,1),background .3s}
+  .auc{flex:none;width:62px;text-align:right;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+
+  /* damage callout */
+  .callout{margin-top:14px;font-size:13px;color:var(--bad);text-align:center;font-weight:600;
+    height:0;opacity:0;overflow:hidden;transition:.35s}
+  .callout.show{height:auto;opacity:1;margin-top:16px}
+
+  .concl{margin-top:22px;text-align:center;font-size:15px;color:var(--ink);line-height:1.6;
+    padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(124,92,255,.12),rgba(46,230,197,.08));
+    border:1px solid var(--brd)}
+  .concl b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+  footer{text-align:center;font-size:11px;color:var(--faint);margin-top:20px;line-height:1.7}
+  footer b{color:var(--dim)}
+
+  @media(max-width:560px){
+    .head h1{font-size:28px}.mname{width:118px}.mname .n{font-size:13px}
+    .seg button{font-size:12.5px}.auc{width:54px;font-size:14px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="eyebrow">Thesis · Key Finding · Live</div>
+    <h1>The <span>Imbalance Trap</span></h1>
+    <p>Same data. Same four models. One hidden preprocessing choice decides the "winner." Flip the switch and watch the leaderboard rearrange itself.</p>
+  </div>
+
+  <div class="seg" id="seg">
+    <button data-s="none" class="s-none">No Handling<small>raw imbalanced data</small></button>
+    <button data-s="smote" class="s-smote">SMOTE<small>synthetic oversampling</small></button>
+    <button data-s="classw" class="s-classw">Class-Weight<small>cost-sensitive · honest</small></button>
+  </div>
+  <div class="hintkey">Tip: use ← / → keys to switch strategies during your presentation.</div>
+
+  <div class="banner" id="banner">
+    <span class="tag" id="btag">—</span>
+    <span class="txt" id="btxt">—</span>
+  </div>
+
+  <div class="board">
+    <div class="axis"><span>← cross-validation AUC (axis zoomed 0.68–0.755)</span><span>higher = better</span></div>
+    <div class="rows" id="rows" style="height:248px"></div>
+  </div>
+  <div class="callout" id="callout"></div>
+
+  <div class="concl">
+    <b>The method mattered more than the model.</b><br>
+    The headline "Model X is best" is an artifact of a choice most studies never question — that is the trap this thesis exposes.
+  </div>
+
+  <footer>
+    Real cross-validation AUC from the thesis robustness analysis (Home Credit, 50,000-applicant sample). Axis zoomed for visibility; values are exact.<br>
+    <b>Batuhan SEN · 200527078 · İstinye University — BA Degree Project II</b>
+  </footer>
+</div>
+
+<script>
+const DATA={
+  none:  {logreg:0.7408, rf:0.7367, xgb:0.7472, lgbm:0.7447},
+  smote: {logreg:0.7389, rf:0.6999, xgb:0.7055, lgbm:0.7216},
+  classw:{logreg:0.7410, rf:0.7382, xgb:0.7437, lgbm:0.7450},
+};
+const MODELS=[
+  {id:"logreg",name:"Logistic Regression",badge:"Traditional",bcls:"b-trad",color:"#6ea8fe"},
+  {id:"rf",    name:"Random Forest",      badge:"ML",         bcls:"b-ml",  color:"#2ee6c5"},
+  {id:"xgb",   name:"XGBoost",            badge:"ML",         bcls:"b-ml",  color:"#ffa53b"},
+  {id:"lgbm",  name:"LightGBM",           badge:"ML",         bcls:"b-ml",  color:"#7c5cff"},
+];
+const BANNERS={
+  none:{tag:"Baseline",tc:"var(--acc)",tb:"rgba(110,168,254,.18)",
+    html:'<b>No imbalance handling.</b> Gradient boosting leads — <b>XGBoost 0.7472</b> — exactly as the literature predicts. Logistic regression trails.'},
+  smote:{tag:"⚠ The Trap",tc:"var(--bad)",tb:"rgba(255,93,108,.16)",
+    html:'<b>SMOTE is the textbook fix</b> for imbalance — yet it quietly <b>sabotages the tree models</b>. Now the simple <b>Logistic Regression "wins" (0.7389)</b>. A study that stops here draws the wrong conclusion.'},
+  classw:{tag:"Honest",tc:"var(--good)",tb:"rgba(39,224,163,.16)",
+    html:'<b>Cost-sensitive weighting</b> restores order — <b>LightGBM leads (0.7450)</b>, boosting back on top as theory expects. But the margin over logistic regression is a razor-thin <b>0.004</b>.'},
+};
+const SCALE_MIN=0.68, SCALE_MAX=0.755;
+const scale=v=>Math.max(2,Math.min(100,(v-SCALE_MIN)/(SCALE_MAX-SCALE_MIN)*100));
+const ROWH=62;
+const $=id=>document.getElementById(id);
+
+// build rows once
+$('rows').innerHTML=MODELS.map(m=>`
+  <div class="mrow" id="row_${m.id}">
+    <span class="crown" id="crown_${m.id}">👑</span>
+    <span class="rank">–</span>
+    <span class="mname"><span class="n">${m.name}<span class="badge ${m.bcls}">${m.badge}</span></span></span>
+    <span class="track"><span class="fill" id="fill_${m.id}" style="background:${m.color}"></span></span>
+    <span class="auc" id="auc_${m.id}">0.000</span>
+  </div>`).join('');
+
+let displayed={logreg:0.70,rf:0.70,xgb:0.70,lgbm:0.70}, tween=0, cur="smote";
+function render(strat){
+  cur=strat;
+  const vals=DATA[strat];
+  const order=[...MODELS].sort((a,b)=>vals[b.id]-vals[a.id]);
+  order.forEach((m,rank)=>{
+    const row=$('row_'+m.id);
+    row.style.transform=`translateY(${rank*ROWH}px)`;
+    row.style.opacity=rank===0?1:0.78;
+    row.querySelector('.rank').textContent=rank+1;
+    $('crown_'+m.id).style.opacity=rank===0?1:0;
+    $('fill_'+m.id).style.width=scale(vals[m.id])+'%';
+  });
+  // toggle buttons
+  [...$('seg').children].forEach(b=>b.classList.toggle('on',b.dataset.s===strat));
+  // banner
+  const bn=BANNERS[strat], bt=$('btag');
+  bt.textContent=bn.tag; bt.style.color=bn.tc; bt.style.background=bn.tb;
+  $('btxt').innerHTML=bn.html;
+  $('banner').style.borderColor=bn.tb.replace('.16','.4').replace('.18','.45');
+  // damage callout (only SMOTE)
+  const co=$('callout');
+  if(strat==='smote'){co.textContent='SMOTE cost XGBoost −0.042 AUC and Random Forest −0.037 — while logistic regression barely moved (−0.002).';co.classList.add('show');}
+  else co.classList.remove('show');
+  // tween AUC numbers
+  cancelAnimationFrame(tween);
+  const from={...displayed}, to=vals, t0=performance.now();
+  (function step(t){const k=Math.min((t-t0)/650,1),e=1-Math.pow(1-k,3);
+    MODELS.forEach(m=>{const v=from[m.id]+(to[m.id]-from[m.id])*e;$('auc_'+m.id).textContent=v.toFixed(4);});
+    if(k<1)tween=requestAnimationFrame(step);else displayed={...to};
+  })(t0);
+}
+
+$('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(b)render(b.dataset.s);});
+const SEQ=['none','smote','classw'];
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+    let i=SEQ.indexOf(cur); i=(i+(e.key==='ArrowRight'?1:SEQ.length-1))%SEQ.length; render(SEQ[i]);
+  }
+  if(['1','2','3'].includes(e.key)) render(SEQ[+e.key-1]);
+});
+render('smote'); // open on the "trap"
+</script>
+</body>
+</html>

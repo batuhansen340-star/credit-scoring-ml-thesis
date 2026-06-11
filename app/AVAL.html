@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>AVAL · Credit Risk</title>
+<style>
+  :root{
+    --bg:#eef0f4; --card:#ffffff; --ink:#0f1320; --ink2:#3c4252; --dim:#7a8295; --faint:#aab0bf; --line:#e9ebf1;
+    --brand:#5b5bd6; --grad:linear-gradient(135deg,#6366f1,#8b5cf6); --brandsoft:#eef0ff;
+    --good:#0f9d58; --goodbg:#e7f6ec; --warn:#c2700a; --warnbg:#fbf0e0; --bad:#dc2626; --badbg:#fdeaea;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px -14px rgba(16,24,40,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",sans-serif;color:var(--ink);
+    background:#cfd3de;display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:24px;overflow:hidden}
+  .serif{font-family:"Times New Roman",Georgia,serif}
+  .device{position:relative;width:392px;height:812px;border-radius:56px;background:linear-gradient(160deg,#2a2d36,#0e0f14);
+    padding:13px;box-shadow:0 50px 110px -30px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.05)}
+  .screen-area{position:relative;width:100%;height:100%;border-radius:44px;overflow:hidden;background:var(--bg)}
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:118px;height:33px;background:#000;border-radius:20px;z-index:60}
+  .statusbar{position:absolute;top:0;left:0;right:0;height:54px;z-index:55;display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 34px;font-size:15px;font-weight:600;color:var(--ink)}
+
+  .screen{position:absolute;inset:0;padding-top:54px;display:flex;flex-direction:column;
+    opacity:0;transform:translateX(24px);pointer-events:none;transition:opacity .32s,transform .32s cubic-bezier(.3,1,.4,1)}
+  .screen.on{opacity:1;transform:none;pointer-events:auto;z-index:10}
+  .scroll{flex:1;overflow-y:auto;padding:6px 20px 96px;-webkit-overflow-scrolling:touch}
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* HOME */
+  .hello{padding:6px 22px 2px}
+  .hello .brand{display:flex;align-items:center;gap:11px}
+  .brandmark{width:42px;height:44px;filter:drop-shadow(0 8px 15px rgba(99,102,241,.42))}
+  .hello h1{font-size:23px;font-weight:800;letter-spacing:1.5px}
+  .hello p{font-size:12.5px;color:var(--dim);margin-top:2px}
+  .lbl{font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--dim);margin:18px 4px 12px}
+  .pcard{display:flex;align-items:center;gap:13px;background:var(--card);border-radius:18px;padding:15px 16px;margin-bottom:11px;box-shadow:var(--shadow);cursor:pointer;transition:transform .14s}
+  .pcard:active{transform:scale(.985)}
+  .avatar{width:46px;height:46px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
+  .pinfo{flex:1;min-width:0}.pinfo .n{font-size:15.5px;font-weight:700}.pinfo .r{font-size:12.5px;color:var(--dim);margin-top:2px}
+  .chev{color:var(--faint);font-size:22px;font-weight:300}
+  .ghostbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:8px;padding:15px;border-radius:16px;
+    border:1.5px dashed #c7ccd8;background:transparent;color:var(--brand);font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer}
+  .ghostbtn:active{background:rgba(99,102,241,.05)}
+  .homefoot{text-align:center;font-size:10.5px;color:var(--faint);margin-top:18px;line-height:1.6}
+
+  /* DASH */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 4px 2px}
+  .back{font-size:24px;color:var(--brand);cursor:pointer;width:30px;margin-left:-4px}
+  .who{display:flex;align-items:center;gap:9px}
+  .who .avatar{width:32px;height:32px;border-radius:10px;font-size:12px}
+  .who .n{font-size:15px;font-weight:800}
+  .iconbtn{width:38px;height:38px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--ink2)}
+  .hero{padding:12px 4px 2px}
+  .hero .k{font-size:12.5px;color:var(--dim)}
+  .hero .big{font-size:60px;font-weight:600;letter-spacing:-1px;line-height:1;margin:5px 0 8px}
+  .hero .sub{display:flex;align-items:center;gap:10px;font-size:13px}
+  .hero .badge{padding:5px 12px;border-radius:999px;font-weight:800;font-size:12.5px}
+  .hero .vs{color:var(--dim)}
+  .chartcard{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:14px 12px 12px;margin-top:14px}
+  .chart{position:relative}.chart svg{width:100%;height:120px;display:block;overflow:visible}
+  .dotlbl{position:absolute;background:#0f1320;color:#fff;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;transform:translate(-50%,-150%);pointer-events:none;white-space:nowrap}
+  .tabs{display:flex;gap:6px;margin-top:10px}
+  .tabs button{flex:1;background:var(--bg);border:none;color:var(--dim);font-family:inherit;font-size:11.5px;font-weight:700;padding:9px 3px;border-radius:10px;cursor:pointer;transition:.2s}
+  .tabs button.on{background:var(--brandsoft);color:var(--brand)}
+  .meter-card{background:linear-gradient(135deg,#eaf6ee,#e9f1fb);border-radius:20px;padding:17px;margin-top:14px}
+  .meter-card .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .meter-card h3{font-size:15.5px;font-weight:800}
+  .meter-card p{font-size:12px;color:#2e4a35;margin-top:4px;line-height:1.4;max-width:80%}
+  .mpct{font-size:13px;font-weight:800;padding:5px 11px;border-radius:999px;flex:none;background:#fff;box-shadow:var(--shadow)}
+  .meter{display:flex;gap:3px;align-items:flex-end;height:32px;margin:14px 0 4px}
+  .meter i{flex:1;border-radius:2px;transition:background .4s,height .4s}
+  .seclbl{font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--dim);margin:18px 4px 10px;display:flex;justify-content:space-between}
+  .factorcard{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:6px 14px}
+  .frow{display:flex;align-items:center;gap:13px;padding:11px 2px;border-bottom:1px solid var(--line)}
+  .frow:last-child{border-bottom:none}
+  .ficon{width:40px;height:40px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+  .finfo{flex:1;min-width:0}.finfo .n{font-size:14px;font-weight:700}.finfo .s{font-size:11.5px;color:var(--faint);margin-top:2px}
+  .fright .a{font-size:14px;font-weight:800}
+
+  .nav{position:absolute;left:0;right:0;bottom:0;height:80px;padding-bottom:env(safe-area-inset-bottom);
+    background:linear-gradient(180deg,rgba(238,240,244,0),var(--bg) 42%);display:flex;align-items:center;justify-content:space-around;z-index:30}
+  .nav .ni{font-size:21px;color:var(--faint);cursor:pointer;background:none;border:none;width:44px}
+  .nav .ni.on{color:var(--brand)}
+  .nav .plus{width:54px;height:54px;border-radius:50%;background:var(--grad);color:#fff;font-size:28px;font-weight:300;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 12px 26px -8px rgba(99,102,241,.6);border:none;margin-top:-12px}
+
+  .sheet{position:absolute;inset:0;z-index:70;background:rgba(15,19,32,.4);opacity:0;pointer-events:none;transition:.3s}
+  .sheet.on{opacity:1;pointer-events:auto}
+  .sheet .panel{position:absolute;left:0;right:0;bottom:0;max-height:90%;background:var(--card);border-radius:28px 28px 0 0;
+    padding:8px 22px calc(18px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .34s cubic-bezier(.3,1,.4,1);overflow-y:auto}
+  .sheet.on .panel{transform:none}.panel::-webkit-scrollbar{display:none}
+  .grab{width:40px;height:4px;border-radius:3px;background:#d7dbe4;margin:8px auto 14px}
+  .sheet h2{font-size:19px;font-weight:800}.sheet .hsub{font-size:12.5px;color:var(--dim);margin:3px 0 16px}
+  .field{margin-bottom:15px}
+  .field .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .field label{font-size:13.5px;color:var(--ink2);font-weight:600}.field .val{font-size:14.5px;font-weight:800;font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:6px;outline:none;background:linear-gradient(90deg,var(--brand),var(--brand) var(--p,50%),#dfe3ec var(--p,50%))}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:1px solid var(--line);box-shadow:0 2px 8px rgba(16,24,40,.22);cursor:pointer}
+  .eduseg{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+  .eduseg button{flex:1;min-width:30%;background:var(--bg);border:1px solid var(--line);color:var(--dim);font-family:inherit;font-size:11px;font-weight:600;padding:9px 5px;border-radius:10px;cursor:pointer}
+  .eduseg button.on{background:var(--brandsoft);border-color:#c7ccf5;color:var(--brand)}
+  .seclbl2{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--brand);margin:4px 2px 12px}
+  .bsec{margin-top:4px}
+  .bnote{font-size:11px;color:var(--faint);line-height:1.45;margin:-6px 2px 12px}
+  .checkcard{width:100%;background:var(--brandsoft);border:1.5px dashed #c2c7f0;color:var(--brand);border-radius:14px;
+    padding:15px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:.2s}
+  .checkcard:disabled{opacity:.85;cursor:default}
+  .checkcard span{font-size:16px}
+  .applybtn{width:100%;background:var(--grad);color:#fff;border:none;border-radius:15px;padding:16px;font-family:inherit;font-size:15.5px;font-weight:800;cursor:pointer;margin-top:8px;box-shadow:0 12px 26px -10px rgba(99,102,241,.7)}
+  .disc{font-size:10px;color:var(--faint);text-align:center;line-height:1.6;margin-top:14px}
+
+  @media(max-width:480px){
+    body{padding:0;background:var(--bg)}
+    .device{width:100vw;height:100vh;height:100dvh;border-radius:0;padding:0;box-shadow:none}
+    .screen-area{border-radius:0}.island,.statusbar{display:none}.screen{padding-top:env(safe-area-inset-top)}
+  }
+</style>
+</head>
+<body>
+<div class="device"><div class="screen-area">
+  <div class="island"></div>
+  <div class="statusbar"><span>9:41</span><span>
+    <svg width="17" height="11" viewBox="0 0 17 11" style="vertical-align:middle"><g fill="#0f1320"><rect x="0" y="6.5" width="2.6" height="4.5" rx="1"/><rect x="4.4" y="4" width="2.6" height="7" rx="1"/><rect x="8.8" y="1.6" width="2.6" height="9.4" rx="1"/><rect x="13.2" y="0" width="2.6" height="11" rx="1"/></g></svg>
+    <svg width="24" height="12" viewBox="0 0 24 12" style="vertical-align:middle;margin-left:5px"><rect x="1" y="1" width="19" height="10" rx="2.6" fill="none" stroke="#0f1320" stroke-opacity=".5"/><rect x="21" y="4" width="1.5" height="4" rx="1" fill="#0f1320" fill-opacity=".5"/><rect x="2.4" y="2.4" width="15.5" height="7.2" rx="1.4" fill="#0f1320"/></svg>
+  </span></div>
+
+  <!-- HOME -->
+  <div class="screen on" id="home">
+    <div class="hello"><div class="brand">
+      <svg class="brandmark" viewBox="0 0 44 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="avg" x1="4" y1="3" x2="40" y2="46" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+        <path d="M22 2.4 L38.6 7.7 C40.1 8.2 40.8 9.3 40.8 10.8 L40.8 25.6 C40.8 37.6 22 45.6 22 45.6 C22 45.6 3.2 37.6 3.2 25.6 L3.2 10.8 C3.2 9.3 3.9 8.2 5.4 7.7 Z" fill="url(#avg)"/>
+        <path d="M12.4 30.2 L18.6 23.4 L24.4 27 L31.6 17.4" stroke="#fff" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="31.6" cy="17.4" r="2.7" fill="#fff"/>
+      </svg>
+      <div><h1>AVAL</h1><p>Credit risk, made clear</p></div></div></div>
+    <div class="scroll">
+      <div class="lbl">Applicants</div>
+      <div id="plist"></div>
+      <button class="ghostbtn" id="toCustom">+ &nbsp;Build a custom profile</button>
+      <div class="homefoot">Tap an applicant to open their risk dashboard.<br>Batuhan SEN · 200527078 · İstinye University</div>
+    </div>
+  </div>
+
+  <!-- DASH -->
+  <div class="screen" id="dash">
+    <div class="topbar" style="padding-left:18px;padding-right:18px">
+      <span class="back" data-back>‹</span>
+      <div class="who"><div class="avatar" id="d_av">EK</div><div class="n" id="d_nm">Elif K.</div></div>
+      <div class="iconbtn" id="editIcon">⚙</div>
+    </div>
+    <div class="scroll">
+      <div class="hero">
+        <div class="k">Estimated default probability</div>
+        <div class="big serif"><span id="bigpct">0.0</span>%</div>
+        <div class="sub"><span class="badge" id="band">—</span><span class="vs" id="vsavg"></span></div>
+      </div>
+      <div class="chartcard">
+        <div class="chart"><svg viewBox="0 0 320 120" preserveAspectRatio="none" id="svg"></svg><div class="dotlbl" id="dotlbl"></div></div>
+        <div class="tabs" id="tabs">
+          <button data-f="ext2" class="on">Credit Score</button>
+          <button data-f="credit_income">Loan/Income</button>
+          <button data-f="age">Age</button>
+          <button data-f="education">Education</button>
+        </div>
+      </div>
+      <div class="meter-card">
+        <div class="row1"><div><h3>Risk profile</h3><p id="meterMsg">—</p></div><div class="mpct" id="mpct">0%</div></div>
+        <div class="meter" id="meter"></div>
+      </div>
+      <div class="seclbl"><span>Why this score</span><span id="factorCount"></span></div>
+      <div class="factorcard" id="factors"></div>
+    </div>
+    <div class="nav">
+      <button class="ni" data-back>⌂</button>
+      <button class="ni on">📊</button>
+      <button class="plus" id="navPlus">+</button>
+      <button class="ni" id="navEdit">⚙</button>
+      <button class="ni" data-back>👥</button>
+    </div>
+  </div>
+
+  <!-- EDIT SHEET -->
+  <div class="sheet" id="sheet"><div class="panel">
+    <div class="grab"></div>
+    <h2>New applicant</h2><div class="hsub">The applicant provides what they know. Their credit-bureau scores are retrieved automatically.</div>
+    <div class="seclbl2">Provided by the applicant</div>
+    <div class="field"><div class="top"><label>Annual Income</label><div class="val" id="v_income"></div></div><input type="range" id="income" min="25000" max="1000000" step="5000" value="300000"></div>
+    <div class="field"><div class="top"><label>Loan Amount</label><div class="val" id="v_credit"></div></div><input type="range" id="credit" min="50000" max="2200000" step="10000" value="360000"></div>
+    <div class="field"><div class="top"><label>Annual Payment</label><div class="val" id="v_annuity"></div></div><input type="range" id="annuity" min="5000" max="160000" step="1000" value="17000"></div>
+    <div class="field"><div class="top"><label>Age</label><div class="val" id="v_age"></div></div><input type="range" id="age" min="21" max="69" step="1" value="49"></div>
+    <div class="field"><div class="top"><label>Years Employed</label><div class="val" id="v_emp"></div></div><input type="range" id="emp" min="0" max="40" step="0.5" value="20"></div>
+    <div class="field"><label>Education level</label><div class="eduseg" id="eduseg"></div></div>
+    <div class="bsec">
+      <div class="seclbl2" style="margin-top:8px">Credit bureau report</div>
+      <div class="bnote">Pulled automatically — the applicant never types these. Adjust only for what-if analysis.</div>
+      <button class="checkcard" id="runcheck"><span>🔍</span> Run credit check</button>
+      <div id="bureauFields" style="display:none">
+        <div class="field"><div class="top"><label>External score 1</label><div class="val" id="v_e1"></div></div><input type="range" id="e1" min="0" max="1" step="0.01" value="0.80"></div>
+        <div class="field"><div class="top"><label>External score 2</label><div class="val" id="v_e2"></div></div><input type="range" id="e2" min="0" max="1" step="0.01" value="0.77"></div>
+        <div class="field"><div class="top"><label>External score 3</label><div class="val" id="v_e3"></div></div><input type="range" id="e3" min="0" max="1" step="0.01" value="0.81"></div>
+      </div>
+    </div>
+    <button class="applybtn" id="apply">Apply &amp; assess</button>
+    <div class="disc">Simplified interpretable demo of the thesis model (logistic regression · 9 features incl. education · AUC ≈ 0.73). Demonstration only.</div>
+  </div></div>
+</div></div>
+
+<script>
+const MODEL={"features":["ext1","ext2","ext3","credit_income","annuity_income","payment_rate","age","emp_years","education"],
+"mean":[0.5062112533098857,0.5155117127247887,0.5165378285742529,3.9467993673357333,0.1809498328790329,0.05361726937141104,43.84143424452088,6.119243082192622,1.509575],
+"std":[0.13806922087887577,0.1900050400134476,0.17336714352516472,2.5450820846665563,0.09032676659055772,0.022371160791760533,11.902380952590981,5.621409784275097,0.8733031085337071],
+"coef":[-0.1572454409126946,-0.43720630480832035,-0.46122680963555374,-0.30628028180318356,0.3364676248311377,-0.19207070074970903,-0.11866965620065936,-0.1682778399640032,-0.2015307173755046],
+"intercept":-2.7251292976629697,
+"bounds":{"ext1":[0.1176,0.867],"ext2":[0.0294,0.7832],"ext3":[0.072,0.8328],"credit_income":[0.599,12.8361],"annuity_income":[0.04,0.4873],"payment_rate":[0.0265,0.1186],"age":[22.6876,66.7836],"emp_years":[0.3178,29.8164],"education":[0,3]},
+"edu_labels":["Lower secondary","Secondary","Incomplete higher","Higher education","Academic degree"],"base_rate":0.0807};
+const FMETA={ext1:["Credit score 1","📈"],ext2:["Credit score 2","📈"],ext3:["Credit score 3","📈"],
+ credit_income:["Loan-to-income","💳"],annuity_income:["Payment-to-income","🧾"],payment_rate:["Payment rate","💸"],
+ age:["Age","📅"],emp_years:["Employment length","💼"],education:["Education level","🎓"]};
+const SWEEP={ext2:[0.05,0.84],credit_income:[0.6,12],age:[22,67],education:[0,3]};
+const PERSONAS=[
+ {name:"Elif K.",role:"Established professional",av:"EK",avc:"#0f9d58",v:{income:300000,credit:360000,annuity:17000,age:49,emp:20,edu:3,e1:.80,e2:.77,e3:.81}},
+ {name:"Mert A.",role:"First-time borrower",av:"MA",avc:"#c2700a",v:{income:135000,credit:600000,annuity:31000,age:34,emp:4,edu:2,e1:.46,e2:.49,e3:.43}},
+ {name:"Deniz Y.",role:"Over-leveraged applicant",av:"DY",avc:"#dc2626",v:{income:62000,credit:880000,annuity:53000,age:24,emp:0.5,edu:1,e1:.16,e2:.12,e3:.18}},
+ {name:"Custom profile",role:"Manually entered",av:"C",avc:"#5b5bd6",v:{income:200000,credit:500000,annuity:24000,age:40,emp:6,edu:1,e1:.50,e2:.52,e3:.52}},
+];
+const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString('en-US',{maximumFractionDigits:0});
+const clamp=(x,b)=>Math.max(b[0],Math.min(b[1],x));
+const sig=z=>1/(1+Math.exp(-z));
+let cur=0, sweptF='ext2';
+
+function feats(v){return {ext1:v.e1,ext2:v.e2,ext3:v.e3,credit_income:v.credit/v.income,annuity_income:v.annuity/v.income,payment_rate:v.annuity/v.credit,age:v.age,emp_years:v.emp,education:v.edu};}
+function score(raw){let lo=MODEL.intercept;const cs={};MODEL.features.forEach((f,i)=>{const c=MODEL.coef[i]*(clamp(raw[f],MODEL.bounds[f])-MODEL.mean[i])/MODEL.std[i];lo+=c;cs[f]=c;});return {p:sig(lo),contrib:cs};}
+function riskWith(raw,f,val){const r={...raw,[f]:val};let lo=MODEL.intercept;MODEL.features.forEach((ff,i)=>lo+=MODEL.coef[i]*(clamp(r[ff],MODEL.bounds[ff])-MODEL.mean[i])/MODEL.std[i]);return sig(lo);}
+function bandOf(p){return p<0.06?["Low risk","var(--good)","var(--goodbg)"]:p<0.15?["Moderate risk","var(--warn)","var(--warnbg)"]:["High risk","var(--bad)","var(--badbg)"];}
+function animNum(el,to,dec){const from=parseFloat(el.textContent)||0,t0=performance.now();(function s(t){const k=Math.min((t-t0)/600,1),e=1-Math.pow(1-k,3);el.textContent=(from+(to-from)*e).toFixed(dec);if(k<1)requestAnimationFrame(s);})(t0);}
+
+$('plist').innerHTML=PERSONAS.slice(0,3).map((p,i)=>`<div class="pcard" data-p="${i}">
+  <div class="avatar" style="background:${p.avc}">${p.av}</div>
+  <div class="pinfo"><div class="n">${p.name}</div><div class="r">${p.role}</div></div><div class="chev">›</div></div>`).join('');
+
+function render(){
+  const v=PERSONAS[cur].v, raw=feats(v), {p,contrib}=score(raw);
+  $('d_av').textContent=PERSONAS[cur].av;$('d_av').style.background=PERSONAS[cur].avc;$('d_nm').textContent=PERSONAS[cur].name;
+  const [bl,bc,bbg]=bandOf(p);
+  const bd=$('band');bd.textContent=bl;bd.style.color=bc;bd.style.background=bbg;
+  const ratio=p/MODEL.base_rate;
+  $('vsavg').innerHTML=ratio>=1?'<b style="color:'+bc+'">'+ratio.toFixed(1)+'×</b> avg (8.1%)':'<b style="color:var(--good)">'+(1/ratio).toFixed(1)+'× lower</b> than avg (8.1%)';
+  animNum($('bigpct'),p*100,1);
+  drawChart(raw); drawMeter(p); $('mpct').textContent=(p*100).toFixed(1)+'%';
+  const topf=Object.entries(contrib).sort((a,b)=>b[1]-a[1])[0];
+  $('meterMsg').textContent=p<0.06?'Strong profile — external scores and education keep risk low.':p<0.15?'Moderate — '+FMETA[topf[0]][0]+' is the main pressure here.':'Elevated — '+FMETA[topf[0]][0]+' pushes this risk up the most.';
+  drawFactors(contrib);
+}
+function drawMeter(p){const N=40,active=Math.round(Math.min(p/0.40,1)*N);
+  const grad=t=>{const a=[15,157,88],b=[245,166,35],c=[220,38,38];let r,g,bb;
+    if(t<.5){const k=t/.5;r=a[0]+(b[0]-a[0])*k;g=a[1]+(b[1]-a[1])*k;bb=a[2]+(b[2]-a[2])*k;}else{const k=(t-.5)/.5;r=b[0]+(c[0]-b[0])*k;g=b[1]+(c[1]-b[1])*k;bb=b[2]+(c[2]-b[2])*k;}
+    return`rgb(${r|0},${g|0},${bb|0})`;};
+  $('meter').innerHTML=Array.from({length:N},(_,i)=>`<i style="height:${18+(i/N)*14}px;background:${i<active?grad(i/(N-1)):'rgba(15,19,32,.1)'}"></i>`).join('');}
+function drawFactors(contrib){const tot=Object.values(contrib).reduce((s,c)=>s+Math.abs(c),0)||1;
+  const rows=Object.entries(contrib).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,6);
+  $('factorCount').textContent=rows.length+' factors';
+  $('factors').innerHTML=rows.map(([f,c])=>{const risk=c>0,pct=(Math.abs(c)/tot*100).toFixed(0);
+    return `<div class="frow"><div class="ficon">${FMETA[f][1]}</div><div class="finfo"><div class="n">${FMETA[f][0]}</div><div class="s">${risk?'Raises risk':'Lowers risk'}</div></div>
+      <div class="fright"><div class="a" style="color:${risk?'var(--bad)':'var(--good)'}">${risk?'▲':'▼'} ${pct}%</div></div></div>`;}).join('');}
+function drawChart(raw){const [lo,hi]=SWEEP[sweptF],n=sweptF==='education'?4:38,W=320,H=120;
+  const xs=[],ys=[];for(let i=0;i<n;i++){const x=lo+(hi-lo)*i/(n-1);xs.push(x);ys.push(riskWith(raw,sweptF,x)*100);}
+  const ymax=Math.max(...ys)*1.18+0.4;
+  const px=i=>10+(W-20)*(xs[i]-lo)/(hi-lo), py=val=>H-8-(H-22)*val/ymax;
+  const line=xs.map((x,i)=>`${i?'L':'M'}${px(i).toFixed(1)},${py(ys[i]).toFixed(1)}`).join(' ');
+  const area=line+` L${px(n-1).toFixed(1)},${H} L${px(0).toFixed(1)},${H} Z`;
+  const cx=clamp(raw[sweptF],[lo,hi]),cy=riskWith(raw,sweptF,cx)*100,dotx=10+(W-20)*(cx-lo)/(hi-lo),doty=py(cy);
+  $('svg').innerHTML=`<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6366f1" stop-opacity=".30"/><stop offset="1" stop-color="#6366f1" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#ag)"/><path d="${line}" fill="none" stroke="#6366f1" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${dotx.toFixed(1)}" cy="${doty.toFixed(1)}" r="5.5" fill="#fff" stroke="#6366f1" stroke-width="2.8"/>`;
+  const lbl=$('dotlbl');lbl.textContent=cy.toFixed(1)+'%';lbl.style.left=(dotx/W*100)+'%';lbl.style.top=(doty/H*100)+'%';}
+
+// nav
+let stack=['home'];
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));}
+function go(id){stack.push(id);show(id);}
+function back(){if(stack.length>1){stack.pop();show(stack[stack.length-1]);}}
+document.querySelectorAll('[data-back]').forEach(b=>b.onclick=back);
+$('plist').addEventListener('click',e=>{const b=e.target.closest('.pcard');if(!b)return;cur=+b.dataset.p;sweptF='ext2';resetTabs();go('dash');render();});
+function resetTabs(){[...$('tabs').children].forEach((x,i)=>x.classList.toggle('on',i===0));}
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sweptF=b.dataset.f;[...$('tabs').children].forEach(x=>x.classList.toggle('on',x===b));drawChart(feats(PERSONAS[cur].v));});
+
+// edit sheet
+function paint(el){const p=(el.value-el.min)/(el.max-el.min)*100;el.style.setProperty('--p',p+'%');}
+$('eduseg').innerHTML=MODEL.edu_labels.map((l,i)=>`<button data-e="${i}">${l}</button>`).join('');
+let eduSel=3;
+function loadSheet(i){const v=PERSONAS[i].v;$('income').value=v.income;$('credit').value=v.credit;$('annuity').value=v.annuity;$('age').value=v.age;$('emp').value=v.emp;$('e1').value=v.e1;$('e2').value=v.e2;$('e3').value=v.e3;eduSel=v.edu;syncSheet();}
+function syncSheet(){$('v_income').textContent='₺'+fmt(+$('income').value);$('v_credit').textContent='₺'+fmt(+$('credit').value);$('v_annuity').textContent='₺'+fmt(+$('annuity').value);
+  $('v_age').textContent=$('age').value+' yrs';$('v_emp').textContent=$('emp').value+' yrs';
+  $('v_e1').textContent=(+$('e1').value).toFixed(2);$('v_e2').textContent=(+$('e2').value).toFixed(2);$('v_e3').textContent=(+$('e3').value).toFixed(2);
+  document.querySelectorAll('#sheet input[type=range]').forEach(paint);[...$('eduseg').children].forEach((b,i)=>b.classList.toggle('on',i===eduSel));}
+$('eduseg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;eduSel=+b.dataset.e;syncSheet();});
+document.querySelectorAll('#sheet input[type=range]').forEach(el=>el.addEventListener('input',syncSheet));
+let bureauChecked=true;
+function setBureau(c){bureauChecked=c;$('runcheck').style.display=c?'none':'flex';$('bureauFields').style.display=c?'block':'none';}
+function openSheet(i,fresh){loadSheet(i);setBureau(!fresh);$('sheet').classList.add('on');}
+$('editIcon').onclick=$('navEdit').onclick=$('navPlus').onclick=()=>openSheet(cur,false);
+$('toCustom').onclick=()=>openSheet(3,true);
+$('runcheck').onclick=()=>{const b=$('runcheck');b.disabled=true;b.innerHTML='<span>⏳</span> Checking credit bureau…';
+  setTimeout(()=>{setBureau(true);b.disabled=false;b.innerHTML='<span>🔍</span> Run credit check';syncSheet();},950);};
+$('sheet').addEventListener('click',e=>{if(e.target.id==='sheet')$('sheet').classList.remove('on');});
+$('apply').onclick=()=>{PERSONAS[3].v={income:+$('income').value,credit:+$('credit').value,annuity:+$('annuity').value,age:+$('age').value,emp:+$('emp').value,edu:eduSel,e1:+$('e1').value,e2:+$('e2').value,e3:+$('e3').value};
+  cur=3;sweptF='ext2';resetTabs();$('sheet').classList.remove('on');if(stack[stack.length-1]!=='dash')go('dash');render();};
+</script>
+</body>
+</html>

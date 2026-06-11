@@ -1,0 +1,26 @@
+# --- Python ortami / cache ---
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# --- macOS / Office gecici dosyalari ---
+.DS_Store
+~$*
+document/~$*
+
+# --- VERI: Kaggle yarisma kurallari geregi dagitilamaz + GitHub 100MB limiti ---
+# (indirme adimlari README'de)
+data/
+home-credit-default-risk/
+home-credit-default-risk.zip
+
+# --- ara metin dokumleri (dokuman uretiminin gecici ciktilari) ---
+document/_*.txt
+document/__pycache__/
+
+# --- eski/deneysel kosudan kalan, dokumanla eslesmeyen ciktilar ---
+# (gecerli sonuclar: README tablosu + outputs/results/robustness_imbalance.csv)
+
+# --- video kayitlari ---
+*.mp4

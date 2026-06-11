@@ -1,0 +1,5 @@
+Model,No Handling,SMOTE,Class Weight
+Logistic Regression,0.7408,0.7389,0.741
+Random Forest,0.7367,0.6999,0.7382
+XGBoost,0.7472,0.7055,0.7437
+LightGBM,0.7447,0.7216,0.745
